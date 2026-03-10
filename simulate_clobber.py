@@ -42,16 +42,41 @@ def simulate(G, player=0, misere=False, loud=False):
         return player
     else: 
         return other_player
+    
+# Generate a graph from a k-partite descriptor, e.g.
+# [3,1,1,1] for K_{3,1,1,1}
+def generate_k_partite(ns):
+    N = sum(ns)
+
+    # Generate a partitioned vertex structure, e.g.
+    # [[0,1,2],[3],[4],[5]]
+    v_ps = []
+    counter = 0
+    for n in ns:
+        v_ps.append(list(range(counter,counter+n)))
+        counter += n
+
+    G = set()
+    # For each partition
+    for v_p in v_ps:
+        # For each vertex in that partition
+        for v in v_p:
+            # Connect it to every vertex of every later partition
+            for i in range(v_p[-1]+1,N):
+                G.add((v,i))
+    return G
 
 # ============================================================================
 # User line - above this is internals
 # ============================================================================
 
 def clobber_normal(G):
-    print(player_name(simulate(G)), "wins normal for graph", G)
+    print(player_name(simulate(G)), "wins normal.")
 
 def clobber_misere(G):
-    print(player_name(simulate(G, misere=True)), "wins misere for graph", G)
+    print(player_name(simulate(G, misere=True)), "wins misere.")
 
 clobber_normal({(0,3),(1,3),(2,3),(3,4),(4,5)})
 clobber_misere({(0,1),(1,2),(2,3),(3,4),(4,5)})
+clobber_normal(generate_k_partite([3,1,1,1]))
+clobber_normal(generate_k_partite([5,4]))
